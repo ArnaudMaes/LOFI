@@ -12,7 +12,7 @@
     ENCODER = 0x09,
     IGNORE = 0x7F;
 
-      var PIN_MODE = 0xF4,
+  var PIN_MODE = 0xF4,
     REPORT_DIGITAL = 0xD0,
     REPORT_ANALOG = 0xC0,
     DIGITAL_MESSAGE = 0x90,
