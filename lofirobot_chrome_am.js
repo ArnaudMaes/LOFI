@@ -205,12 +205,14 @@ lockedByStepper = true;
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
     }
      mConnection.postMessage(msg);
-     
+
+    while (lockedByStepper == true) {
 console.log("After mStatus="+mStatus.toString());
 console.log("After lockedByStepper="+lockedByStepper.toString());
+getAppStatus();
 console.log("Finished mStatus="+mStatus.toString());
 console.log("Finished lockedByStepper="+lockedByStepper.toString());
-     
+    }
  }
 
   ext.servo_off = function() {
