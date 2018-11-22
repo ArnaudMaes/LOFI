@@ -69,6 +69,8 @@
     var servo_smooth = [];
     var servo_position_smooth;
 
+    var lockedByStepper = false;
+
     var dist_read  = 0;
     var last_reading = 0;
 
@@ -188,6 +190,8 @@
 
     speed1 = valBetween(speed1,0,10000);
     speed2 = valBetween(speed2,0,10000);
+
+console.log("mStatus=%n", mStatus);
 
     if ((direction1 == 'avancer') && (direction2 == 'avancer')) {
          msg.buffer = [214, speed1 % 100, 215, Math.floor(speed1/100), 217, speed2 % 100, 218, Math.floor(speed2/100), 220, 0];
