@@ -386,24 +386,27 @@
                 setTimeout(getAppStatus, 1000);
             }
             else if (response.status === false) { //Chrome app says not connected
+                console.log("Touchpoint A");
                 mStatus = 1;
                 setTimeout(getAppStatus, 1000);
             }
             else {// successfully connected
                 if (mStatus !==2) {
-                    console.log("OK - Connected");
+                    console.log("Connected");
                     mConnection = chrome.runtime.connect(LOFI_ID);
                     mConnection.onMessage.addListener(onMsgApp);
 
                     //pinMode_init();
                 }
-                mStatus = 1;
+                mStatus = 1; 
+                console.log("Touchpoint B");
                 setTimeout(getAppStatus, 1000);
             }
         });
     };
 
     function onMsgApp(msg) {
+        console.log("Touchpoint M");
         mStatus = 2;
         var buffer = msg.buffer;
         //console.log(buffer);
