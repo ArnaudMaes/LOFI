@@ -438,7 +438,7 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
 
     getAppStatus();
 
-    ScratchExtensions.register('LOFI Robot Chrome v4.AM', descriptor, ext);
+    ScratchExtensions.register('LOFI Robot Chrome v4.01.AM', descriptor, ext);
 
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
