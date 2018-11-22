@@ -208,7 +208,9 @@ console.log("Before lockedByStepper="+lockedByStepper.toString());
      
 console.log("After mStatus="+mStatus.toString());
 console.log("After lockedByStepper="+lockedByStepper.toString());
-     while (lockedByStepper) ;
+     while (lockedByStepper) {
+       getAppStatus();
+     }       
 console.log("Finished mStatus="+mStatus.toString());
 console.log("Finished lockedByStepper="+lockedByStepper.toString());
      
