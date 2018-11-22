@@ -416,7 +416,7 @@ lockedByStepper = true;
     };
 
     function onMsgApp(msg) {
-//        console.log("Touchpoint M");
+        console.log("Touchpoint M");
         mStatus = 2;
         lockedByStepper = false;
         var buffer = msg.buffer;
