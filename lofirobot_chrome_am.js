@@ -349,7 +349,7 @@
             ['r', 'Lire %m.input', 'readINPUTanalog', 'INPUT 1'],
             ['r', 'Écheloner %n de %n %n à %n %n', 'mapValues', 50, 0, 100, -240, 240],
             ['-'],
-            ['b', 'Stepper is moving', 'stepperMoving'],
+            ['b', 'Un moteur pas-à-pas fonctionne', 'stepperMoving'],
             ['-'],
             [' ', 'Tout arrêter', 'allstop']
             ],
