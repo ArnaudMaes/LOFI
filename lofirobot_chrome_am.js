@@ -211,14 +211,6 @@
     return lockedByStepper;
   }
   
-  ext.startStepper = function() {
-    lockedByStepper = true;
-  }  
-
-  ext.stopStepper = function() {
-    lockedByStepper = false;
-  }  
-
   ext.servo_off = function() {
      var msg = {};
      msg.buffer = [212,99];
@@ -358,8 +350,6 @@
             ['r', 'Écheloner %n de %n %n à %n %n', 'mapValues', 50, 0, 100, -240, 240],
             ['-'],
             ['b', 'Stepper is moving', 'stepperMoving'],
-            [' ', 'Start Stepper', 'startStepper'],
-            [' ', 'Stop Stepper', 'stopStepper'],
             ['-'],
             [' ', 'Tout arrêter', 'allstop']
             ],
