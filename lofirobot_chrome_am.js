@@ -33,6 +33,7 @@
 
     var LOFI_ID = "opdjdfckgbogbagnkbkpjgficbampcel"; // APP ID
     var mConnection;
+    var connected = false;
     var mStatus = 0;
     var _selectors = {};
 
@@ -65,6 +66,7 @@
 
     var msg1 = {};
     var msg2 = {};
+    var previousBuffer = {};
 
     var servo_smooth = [];
     var servo_position_smooth;
@@ -191,9 +193,7 @@
     speed1 = valBetween(speed1,0,10000);
     speed2 = valBetween(speed2,0,10000);
 
-console.log("Before mStatus="+mStatus.toString());
-console.log("Before lockedByStepper="+lockedByStepper.toString());
-lockedByStepper = true;
+    lockedByStepper = true;
 
     if ((direction1 == 'avancer') && (direction2 == 'avancer')) {
          msg.buffer = [214, speed1 % 100, 215, Math.floor(speed1/100), 217, speed2 % 100, 218, Math.floor(speed2/100), 220, 0];
@@ -205,51 +205,39 @@ lockedByStepper = true;
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
     }
      mConnection.postMessage(msg);
-
-console.log("After mStatus="+mStatus.toString());
-console.log("After lockedByStepper="+lockedByStepper.toString());
-console.log("Finished mStatus="+mStatus.toString());
-console.log("Finished lockedByStepper="+lockedByStepper.toString());
-
   }
+
+  ext.stepperMoving = function() {
+    return lockedByStepper;
+  }
+  
+  ext.startStepper = function() {
+    lockedByStepper = true;
+  }  
+
+  ext.stopStepper = function() {
+    lockedByStepper = false;
+  }  
 
   ext.servo_off = function() {
      var msg = {};
      msg.buffer = [212,99];
      mConnection.postMessage(msg);
-     console.log('off');
   }
 
   ext.allstop = function() {
      var msg = {};
      msg.buffer = [213,99];
      mConnection.postMessage(msg);
-     console.log('all off');
   }
 
   ext.serwo = function(pin, deg) {
-
-      /*
-      servo_position_smooth = 0;
-      servo_smooth[0] = deg;
-
-      for (i = 20; i > 0; i--) {
-          servo_smooth[i] = servo_smooth[i-1];
-          //console.log(servo_smooth[i]);
-      }
-
-      for (i = 0; i < 20; i++) {
-          servo_position_smooth = servo_position_smooth + servo_smooth[i];
-      }
-
-      */
 
        var msg = {};
 
        var output;
        if (pin == "OUTPUT 1") {
            output = 208;
-       //    console.log("111");
        }
        if (pin == "OUTPUT 2") {
            output = 209;
@@ -265,7 +253,6 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
       msg.buffer = [output,Math.round(deg)];
 
     mConnection.postMessage(msg);
-   //console.log(msg);
   }
 
   function messageParser(buf) {
@@ -273,18 +260,21 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
   var msg = {};
 
   if (buf[0]==224){
-  msg1 = buf;
+    msg1 = buf;
+    msg2={};
   }
-  else if (buf[0] != 224) {
-  msg2 = buf;
+  else {
+    msg2 = buf;
   }
 
-  msg.buffer = msg1.concat(msg2);
+  if (msg2.length > 0) {
+    msg.buffer = msg1.concat(msg2);
+  } else {
+    msg.buffer = msg1;
+  }
 
   if (msg.buffer.length > 10) {
       msg.buffer = msg.buffer.slice(0,10);
-      //console.log("H");
-      //console.log(msg.buffer);
   }
 
   if (msg.buffer.length == 10){
@@ -304,7 +294,6 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
          if (msg.buffer[8] == 240) {
          dist_read = Math.round(msg.buffer[9] );
          }
-      //console.log(analogRead0);
   }
 
   }
@@ -349,10 +338,7 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
       if (distance == 0) {
       distance = 1000;
       }
-          //console.log(storedInputData[i]);
-    //console.log(distance);
 
-    //this.arduino.board.sp.write(new Buffer([0xF0, 0x08, pinNumber, 0xF7])
   return distance;
   }
 
@@ -362,14 +348,19 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
 
         blocks: [
             [' ', 'Activer le moteur continu %m.motor en mode %m.direction à la puissance %n', 'continuousmotor', 'M1','avancer', 100],
-            [' ', 'Activer le moteur pas-à-pas %m.stepper en mode %m.direction d\x27une valeur %n', 'pasapas', 'S1','avancer', 1024],
-            [' ', 'Activer les moteurs pas-à-pas S1 en mode %m.direction d\x27une valeur %n et S2 en mode %m.direction d\x27une valeur %n', 'pasapasduo', 'avancer', 1024, 'avancer', 1024],
+            [' ', 'Activer le moteur pas-à-pas %m.stepper en mode %m.direction à une valeur de %n', 'pasapas', 'S1','avancer', 1024],
+            [' ', 'Activer les moteurs pas-à-pas S1 en mode %m.direction à une valeur de %n et S2 en mode %m.direction à une valeur de %n', 'pasapasduo', 'avancer', 1024, 'avancer', 1024],
             [' ', 'Fixer la sortie %m.output à la valeur %n%', 'setOUTPUT', 'OUTPUT 1', 100],
-            [' ', 'Activer le servo %m.output à l\x27angle %n', 'serwo', 'OUTPUT 1', 0],
+            [' ', 'Activer le servo %m.output à un angle de %n', 'serwo', 'OUTPUT 1', 0],
             [' ', 'Buzzer %m.stan', 'buzzer', 'marche'],
             ['r', 'Télémètre', 'readUltrasound', 'INPUT 1'],
             ['r', 'Lire %m.input', 'readINPUTanalog', 'INPUT 1'],
             ['r', 'Écheloner %n de %n %n à %n %n', 'mapValues', 50, 0, 100, -240, 240],
+            ['-'],
+            ['b', 'Stepper is moving', 'stepperMoving'],
+            [' ', 'Start Stepper', 'startStepper'],
+            [' ', 'Stop Stepper', 'stopStepper'],
+            ['-'],
             [' ', 'Tout arrêter', 'allstop']
             ],
         menus: {
@@ -398,46 +389,62 @@ console.log("Finished lockedByStepper="+lockedByStepper.toString());
                 setTimeout(getAppStatus, 1000);
             }
             else if (response.status === false) { //Chrome app says not connected
-//                console.log("Touchpoint A");
                 mStatus = 1;
                 setTimeout(getAppStatus, 1000);
             }
             else {// successfully connected
                 if (mStatus !==2) {
-//                    console.log("Connected");
-                    mConnection = chrome.runtime.connect(LOFI_ID);
-                    mConnection.onMessage.addListener(onMsgApp);
-
+                      mConnection = chrome.runtime.connect(LOFI_ID);
+                      mConnection.onMessage.addListener(onMsgApp);
+                      connected = true;
+//                      console.log("Connected");
                     //pinMode_init();
                 }
-                mStatus = 1; 
-//                console.log("Touchpoint B");
-                setTimeout(getAppStatus, 1000);
+//                mStatus = 1; 
+               setTimeout(getAppStatus, 1000);
             }
         });
     };
 
     function onMsgApp(msg) {
-        console.log("Touchpoint M");
         mStatus = 2;
-        lockedByStepper = false;
         var buffer = msg.buffer;
-        //console.log(buffer);
 
-        if ( buffer[0]==224){
-        messageParser(buffer);
-        last_reading = 0;
-        }
-
-        if (buffer[0] != 224 && last_reading == 0){
+        if (checkEqualBuffers(buffer,previousBuffer)==false) {
+          previousBuffer = buffer;
+          if (buffer[0]==224){  //E0
             messageParser(buffer);
-            last_reading = 1;
-        }
+            last_reading = 0;
+          } 
+        
+          if ( buffer[0]==221){    //DD
+            if ( buffer[1]==0){
+              lockedByStepper = false;
+            } else {
+              lockedByStepper = true;
+            }
+          }
+        
+          if (buffer[0] != 224 && last_reading == 0){
+              messageParser(buffer);
+              last_reading = 1;
+          }
+        } else {
+      }
     };
+
+function checkEqualBuffers(buf1, buf2) {
+  if (buf1.length != buf2.length) return false;
+  if (buf1.length == 0) return true;
+  for (var i=0; i<buf1.length; i++) {
+    if (buf1[i] != buf2[i]) return false;
+  }
+  return true;
+}
 
     getAppStatus();
 
-    ScratchExtensions.register('LOFI Robot Chrome v4.05.AM', descriptor, ext);
+    ScratchExtensions.register('LOFI Robot Chrome v4.10.AM', descriptor, ext);
 
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
