@@ -340,8 +340,8 @@
 
         blocks: [
             [' ', 'Activer le moteur continu %m.motor en mode %m.direction à la puissance %n', 'continuousmotor', 'M1','avancer', 100],
-            [' ', 'Activer le moteur pas-à-pas %m.stepper en mode %m.direction à une valeur de %n', 'pasapas', 'S1','avancer', 1024],
-            [' ', 'Activer les moteurs pas-à-pas S1 en mode %m.direction à une valeur de %n et S2 en mode %m.direction à une valeur de %n', 'pasapasduo', 'avancer', 1024, 'avancer', 1024],
+            [' ', 'Activer le moteur pas-à-pas %m.stepper en mode %m.direction à une valeur de %n', 'pasapas', 'S1','avancer', 2048],
+            [' ', 'Activer les moteurs pas-à-pas S1 en mode %m.direction à une valeur de %n et S2 en mode %m.direction à une valeur de %n', 'pasapasduo', 'avancer', 2048, 'avancer', 2048],
             [' ', 'Fixer la sortie %m.output à la valeur %n%', 'setOUTPUT', 'OUTPUT 1', 100],
             [' ', 'Activer le servo %m.output à un angle de %n', 'serwo', 'OUTPUT 1', 0],
             [' ', 'Buzzer %m.stan', 'buzzer', 'marche'],
