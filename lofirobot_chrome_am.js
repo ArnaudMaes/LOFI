@@ -397,18 +397,18 @@
         });
     };
 
-    function postAndLogMessage(msg) {
-      mConnection.postMessage(msg);
-      var logmsg ="B-> ";
-      var buf = msg.buffer;
+    function postAndLogMessage(m) {
+      var buf = m.buffer;
+      var logmsg = "B->(" + buf.length + ") " ;
       for (var i=0; i<buf.length; i++) {
         logmsg = logmsg + Number(buf[i]) + " ";
       }
       console.log(logmsg);
+      mConnection.postMessage(m);
     }
 
     function consoleLog(buf) {
-      var logmsg ="B<- ";
+      var logmsg = "B<-(" + buf.length + ") ";
       for (var i=0; i<buf.length; i++) {
         logmsg = logmsg + Number(buf[i]) + " ";
       }
