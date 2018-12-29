@@ -247,6 +247,14 @@
     mConnection.postMessage(msg);
   }
 
+  function consoleLog(buf) {
+      var logmsg ="";
+      for (var i=0; i<buf.length; i++) {
+        logmsg = logmsg + Number(buf[i]) + " ";
+      }
+    console.log(logmsg);
+  }
+
   function messageParser(buf) {
 
   var msg = {};
@@ -399,6 +407,8 @@
     function onMsgApp(msg) {
         mStatus = 2;
         var buffer = msg.buffer;
+
+        consoleLog(msg);
 
         if (checkEqualBuffers(buffer,previousBuffer)==false) {
           previousBuffer = buffer;
