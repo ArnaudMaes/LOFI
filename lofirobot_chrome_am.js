@@ -169,6 +169,7 @@
     var msg = {};
 
     speed = valBetween(speed,0,10000);
+    lockedByStepper = true;
 
     if (stepper == 'S1') {
         if (direction == 'avancer') {
@@ -249,71 +250,66 @@
 
   function messageParser(buf) {
 
-  var msg = {};
+    var msg = {};
 
-  if (buf[0]==224){
-    msg1 = buf;
-    msg2={};
-  }
-  else {
-    msg2 = buf;
-  }
+    if (buf[0]==224){
+      msg1 = buf;
+      msg2={};
+    }
+    else {
+      msg2 = buf;
+    }
 
-  if (msg2.length > 0) {
-    msg.buffer = msg1.concat(msg2);
-  } else {
-    msg.buffer = msg1;
-  }
+    if (msg2.length > 0) {
+      msg.buffer = msg1.concat(msg2);
+    } else {
+      msg.buffer = msg1;
+    }
 
-  if (msg.buffer.length > 10) {
+    if (msg.buffer.length > 10) {
       msg.buffer = msg.buffer.slice(0,10);
+    }
+
+    if (msg.buffer.length == 10){
+
+      if (msg.buffer[0] == 224) {
+        analogRead0 = Math.round(msg.buffer[1] );
+      }
+      if (msg.buffer[2] == 225) {
+        analogRead1 = Math.round(msg.buffer[3] );
+      }
+      if (msg.buffer[4] == 226) {
+        analogRead2 = Math.round(msg.buffer[5] );
+      }
+      if (msg.buffer[6] == 227) {
+        analogRead3 = Math.round(msg.buffer[7] );
+      }
+      if (msg.buffer[8] == 240) {
+        dist_read = Math.round(msg.buffer[9] );
+      }
+    //lockedByStepper = false;
+    }
   }
 
-  if (msg.buffer.length == 10){
-
-    if (msg.buffer[0] == 224) {
-      analogRead0 = Math.round(msg.buffer[1] );
-    }
-    if (msg.buffer[2] == 225) {
-      analogRead1 = Math.round(msg.buffer[3] );
-    }
-    if (msg.buffer[4] == 226) {
-      analogRead2 = Math.round(msg.buffer[5] );
-    }
-    if (msg.buffer[6] == 227) {
-      analogRead3 = Math.round(msg.buffer[7] );
-    }
-    if (msg.buffer[8] == 240) {
-      dist_read = Math.round(msg.buffer[9] );
-    }
-    lockedByStepper = false;
-  }
-
-  }
-
-    ext.readINPUTanalog = function(input) {
+  ext.readINPUTanalog = function(input) {
 
     var reading = 0;
     var msg = {};
 
     if (input == 'INPUT 1'){
-    reading = analogRead0;
+      reading = analogRead0;
     }
-
     if (input == 'INPUT 2'){
-    reading = analogRead1;
+      reading = analogRead1;
     }
-
     if (input == 'INPUT 3'){
-    reading = analogRead2;
+      reading = analogRead2;
     }
-
     if (input == 'INPUT 4'){
-    reading = analogRead3;
+      reading = analogRead3;
     }
         
     return reading;
-
   }
 
   ext.readUltrasound = function(input) {
@@ -335,7 +331,7 @@
   return distance;
   }
 
-    var descriptor = {
+  var descriptor = {
 
     url: 'http://www.lofirobot.com',
 
@@ -363,99 +359,99 @@
       output: ['OUTPUT 1','OUTPUT 2', 'OUTPUT 3', 'OUTPUT 4'],
       stan: ['marche', 'arrêt']
         }
-    };
+  };
 
-    ext._getStatus = function() {
-        return {status: mStatus, msg: mStatus==2?'Ready':'Not Ready'};
-    };
-    ext._shutdown = function() {
-        if(poller) poller = clearInterval(poller);
-        status = false;
-    }
-    function getAppStatus() {
-        chrome.runtime.sendMessage(LOFI_ID, {message: "STATUS"}, function (response) {
-            if (response === undefined) { //Chrome app not found
-                console.log("Chrome app not found");
-                mStatus = 0;
-                setTimeout(getAppStatus, 1000);
-            }
-            else if (response.status === false) { //Chrome app says not connected
-                mStatus = 1;
-                setTimeout(getAppStatus, 1000);
-            }
-            else {// successfully connected
-                if (mStatus !==2) {
-                      mConnection = chrome.runtime.connect(LOFI_ID);
-                      mConnection.onMessage.addListener(onMsgApp);
-                      connected = true;
-//                      console.log("Connected");
-                    //pinMode_init();
-                }
-//                mStatus = 1; 
-               setTimeout(getAppStatus, 1000);
-            }
-        });
-    };
+  ext._getStatus = function() {
+    return {status: mStatus, msg: mStatus==2?'Ready':'Not Ready'};
+  };
 
-    function postAndLogMessage(m) {
-      var buf = m.buffer;
-      var logmsg = "B->(" + buf.length + ") " ;
-      for (var i=0; i<buf.length; i++) {
-        logmsg = logmsg + Number(buf[i]) + " ";
-      }
-      console.log(logmsg);
-      mConnection.postMessage(m);
-    }
-
-    function consoleLog(buf) {
-      var logmsg = "B<-(" + buf.length + ") ";
-      for (var i=0; i<buf.length; i++) {
-        logmsg = logmsg + Number(buf[i]) + " ";
-      }
-      console.log(logmsg);
-    }
-
-    function onMsgApp(msg) {
-      mStatus = 2;
-      var buffer = msg.buffer;
-
-      consoleLog(buffer);
-
-      if (checkEqualBuffers(buffer,previousBuffer)==false) {
-          previousBuffer = buffer;
-          if (buffer[0]==224){  //E0
-            messageParser(buffer);
-            last_reading = 0;
-          } 
-        
-          if ( buffer[0]==221){    //DD
-            if ( buffer[1]==0){
-              lockedByStepper = false;
-            } else {
-              lockedByStepper = true;
-            }
-          }
-        
-          if (buffer[0] != 224 && last_reading == 0){
-              messageParser(buffer);
-              last_reading = 1;
-          }
-        } else {
-      }
-    };
-
-function checkEqualBuffers(buf1, buf2) {
-  if (buf1.length != buf2.length) return false;
-  if (buf1.length == 0) return true;
-  for (var i=0; i<buf1.length; i++) {
-    if (buf1[i] != buf2[i]) return false;
+  ext._shutdown = function() {
+    if(poller) poller = clearInterval(poller);
+    status = false;
   }
-  return true;
-}
 
-    getAppStatus();
+  function getAppStatus() {
+    chrome.runtime.sendMessage(LOFI_ID, {message: "STATUS"}, function (response) {
+      if (response === undefined) { //Chrome app not found
+         console.log("Chrome app not found");
+         mStatus = 0;
+         setTimeout(getAppStatus, 1000);
+      } else if (response.status === false) { //Chrome app says not connected
+        mStatus = 1;
+        setTimeout(getAppStatus, 1000);
+      } else {// successfully connected
+        if (mStatus !==2) {
+          mConnection = chrome.runtime.connect(LOFI_ID);
+          mConnection.onMessage.addListener(onMsgApp);
+          connected = true;
+          // console.log("Connected");
+          //pinMode_init();
+        }
+        //                mStatus = 1; 
+        setTimeout(getAppStatus, 1000);
+      }
+    });
+  };
 
-    ScratchExtensions.register('LOFI Robot Chrome v4.10.AM', descriptor, ext);
+  function postAndLogMessage(m) {
+    var buf = m.buffer;
+    var logmsg = "C -> " ;
+    for (var i=0; i<buf.length; i++) {
+      logmsg = logmsg + Number(buf[i]) + " ";
+    }
+    console.log(logmsg);
+    mConnection.postMessage(m);
+  }
+
+  function consoleLog(buf) {
+    var logmsg = "C <- ";
+    for (var i=0; i<buf.length; i++) {
+      logmsg = logmsg + Number(buf[i]) + " ";
+    }
+    console.log(logmsg);
+  }
+
+  function onMsgApp(msg) {
+    mStatus = 2;
+    var buffer = msg.buffer;
+
+    consoleLog(buffer);
+
+    if (checkEqualBuffers(buffer,previousBuffer)==false) {
+      previousBuffer = buffer;
+      if (buffer[0]==224){  //E0
+      messageParser(buffer);
+      last_reading = 0;
+    } 
+
+    if (buffer[0]==221){    //DD
+      if (buffer[1]==0){
+        lockedByStepper = false;
+      } else {
+        lockedByStepper = true;
+      }
+    }
+        
+    if (buffer[0] != 224 && last_reading == 0){
+      messageParser(buffer);
+        last_reading = 1;
+      }
+    } else {
+    }
+  };
+
+  function checkEqualBuffers(buf1, buf2) {
+    if (buf1.length != buf2.length) return false;
+    if (buf1.length == 0) return true;
+    for (var i=0; i<buf1.length; i++) {
+      if (buf1[i] != buf2[i]) return false;
+    }
+    return true;
+  }
+
+  getAppStatus();
+
+  ScratchExtensions.register('LOFI Robot Chrome v4.10.AM', descriptor, ext);
 
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
