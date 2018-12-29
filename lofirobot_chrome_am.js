@@ -408,9 +408,8 @@
         mStatus = 2;
         var buffer = msg.buffer;
 
-        consoleLog(buffer);
-
         if (checkEqualBuffers(buffer,previousBuffer)==false) {
+          consoleLog(buffer);
           previousBuffer = buffer;
           if (buffer[0]==224){  //E0
             messageParser(buffer);
