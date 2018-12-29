@@ -279,21 +279,22 @@
 
   if (msg.buffer.length == 10){
 
-           if (msg.buffer[0] == 224) {
-           analogRead0 = Math.round(msg.buffer[1] );
-             }
-             if (msg.buffer[2] == 225) {
-             analogRead1 = Math.round(msg.buffer[3] );
-             }
-             if (msg.buffer[4] == 226) {
-             analogRead2 = Math.round(msg.buffer[5] );
-             }
-             if (msg.buffer[6] == 227) {
-             analogRead3 = Math.round(msg.buffer[7] );
-             }
-         if (msg.buffer[8] == 240) {
-         dist_read = Math.round(msg.buffer[9] );
-         }
+    if (msg.buffer[0] == 224) {
+      analogRead0 = Math.round(msg.buffer[1] );
+    }
+    if (msg.buffer[2] == 225) {
+      analogRead1 = Math.round(msg.buffer[3] );
+    }
+    if (msg.buffer[4] == 226) {
+      analogRead2 = Math.round(msg.buffer[5] );
+    }
+    if (msg.buffer[6] == 227) {
+      analogRead3 = Math.round(msg.buffer[7] );
+    }
+    if (msg.buffer[8] == 240) {
+      dist_read = Math.round(msg.buffer[9] );
+    }
+    lockedByStepper = false;
   }
 
   }
