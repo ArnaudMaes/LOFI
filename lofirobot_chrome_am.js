@@ -408,7 +408,7 @@
         mStatus = 2;
         var buffer = msg.buffer;
 
-        consoleLog(msg);
+        consoleLog(buffer);
 
         if (checkEqualBuffers(buffer,previousBuffer)==false) {
           previousBuffer = buffer;
