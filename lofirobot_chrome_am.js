@@ -416,11 +416,12 @@
     }
 
     function onMsgApp(msg) {
-        mStatus = 2;
-        var buffer = msg.buffer;
+      mStatus = 2;
+      var buffer = msg.buffer;
 
-        if (checkEqualBuffers(buffer,previousBuffer)==false) {
-          consoleLog(buffer);
+      consoleLog(buffer);
+
+      if (checkEqualBuffers(buffer,previousBuffer)==false) {
           previousBuffer = buffer;
           if (buffer[0]==224){  //E0
             messageParser(buffer);
