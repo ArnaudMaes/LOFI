@@ -248,7 +248,7 @@
   }
 
   function consoleLog(buf) {
-      var logmsg ="V1.0 - ";
+      var logmsg ="Va ";
       for (var i=0; i<buf.length; i++) {
         logmsg = logmsg + Number(buf[i]) + " ";
       }
