@@ -79,7 +79,7 @@
   function pinMode(pin, mode) {
   var msg = {};
     msg.buffer = [PIN_MODE, pin, mode];
-    mConnection.postMessage(msg);
+    mConnection.postAndLogMessage(msg);
     //addPackage(arrayBufferFromArray(msg.buffer), function(){});
   }
 
@@ -112,11 +112,11 @@
       if (stan == 'marche') {
 
     msg.buffer = [201,1];
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
       }
       else {
           msg.buffer = [201,0];
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
       }
   }
 
@@ -138,7 +138,7 @@
     msg.buffer = [207,value];
     }
 
-    mConnection.postMessage(msg);
+    mConnection.postAndLogMessage(msg);
 
   }
 
@@ -161,7 +161,7 @@
      msg.buffer = [203,speed];
     }
 
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
 
       }
 
@@ -184,7 +184,7 @@
              msg.buffer = [217, speed % 100, 219, Math.floor(speed/100), 220, 0];
         }
     }
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
  }
 
   ext.pasapasduo = function(direction1,speed1,direction2,speed2) {
@@ -204,7 +204,7 @@
     } else if ((direction1 == 'reculer') && (direction2 == 'reculer')) {
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
     }
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
   }
 
   ext.stepperMoving = function() {
@@ -214,13 +214,13 @@
   ext.servo_off = function() {
      var msg = {};
      msg.buffer = [212,99];
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
   }
 
   ext.allstop = function() {
      var msg = {};
      msg.buffer = [213,99];
-     mConnection.postMessage(msg);
+     mConnection.postAndLogMessage(msg);
   }
 
   ext.serwo = function(pin, deg) {
@@ -244,15 +244,7 @@
     deg = valBetween(deg,0,100);
       msg.buffer = [output,Math.round(deg)];
 
-    mConnection.postMessage(msg);
-  }
-
-  function consoleLog(buf) {
-      var logmsg ="Va ";
-      for (var i=0; i<buf.length; i++) {
-        logmsg = logmsg + Number(buf[i]) + " ";
-      }
-    console.log(logmsg);
+    mConnection.postAndLogMessage(msg);
   }
 
   function messageParser(buf) {
@@ -404,6 +396,24 @@
             }
         });
     };
+
+    function postAndLogMessage(msg) {
+      mConnection.postMessage(msg);
+      var logmsg ="B-> ";
+      var buf = msg.buffer;
+      for (var i=0; i<buf.length; i++) {
+        logmsg = logmsg + Number(buf[i]) + " ";
+      }
+      console.log(logmsg);
+    }
+
+    function consoleLog(buf) {
+      var logmsg ="B<- ";
+      for (var i=0; i<buf.length; i++) {
+        logmsg = logmsg + Number(buf[i]) + " ";
+      }
+      console.log(logmsg);
+    }
 
     function onMsgApp(msg) {
         mStatus = 2;
