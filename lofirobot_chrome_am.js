@@ -349,8 +349,7 @@
             ['-'],
             ['b', 'Un moteur pas-à-pas fonctionne', 'stepperMoving'],
             ['-'],
-            [' ', 'Tout arrêter', 'allstop'],
-            [' ', 'Log %m.stan', 'logToConsole', 'arrêt']
+            [' ', 'Tout arrêter', 'allstop']
             ],
         menus: {
 
