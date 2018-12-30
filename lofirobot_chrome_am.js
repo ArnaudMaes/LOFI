@@ -395,7 +395,7 @@
 
   function postAndLogMessage(m) {
     var buf = m.buffer;
-    var logmsg = "C -> " ;
+    var logmsg = "D -> " ;
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -404,7 +404,7 @@
   }
 
   function consoleLog(buf) {
-    var logmsg = "C <- ";
+    var logmsg = "D <- ";
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -415,25 +415,24 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
-    consoleLog(buffer);
-
     if (checkEqualBuffers(buffer,previousBuffer)==false) {
+      consoleLog(buffer);
       previousBuffer = buffer;
       if (buffer[0]==224){  //E0
-      messageParser(buffer);
-      last_reading = 0;
-    } 
+        messageParser(buffer);
+        last_reading = 0;
+      } 
 
-    if (buffer[0]==221){    //DD
-      if (buffer[1]==0){
-        lockedByStepper = false;
-      } else {
-        lockedByStepper = true;
+      if (buffer[0]==221){    //DD
+        if (buffer[1]==0){
+          lockedByStepper = false;
+        } else {
+          lockedByStepper = true;
+        }
       }
-    }
         
-    if (buffer[0] != 224 && last_reading == 0){
-      messageParser(buffer);
+      if (buffer[0] != 224 && last_reading == 0){
+        messageParser(buffer);
         last_reading = 1;
       }
     } else {
