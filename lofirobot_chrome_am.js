@@ -169,7 +169,7 @@
     var msg = {};
 
     speed = valBetween(speed,0,10000);
-    lockedByStepper = true;
+    // lockedByStepper = true;
 
     if (stepper == 'S1') {
         if (direction == 'avancer') {
@@ -194,7 +194,7 @@
     speed1 = valBetween(speed1,0,10000);
     speed2 = valBetween(speed2,0,10000);
 
-    lockedByStepper = true;
+    // lockedByStepper = true;
 
     if ((direction1 == 'avancer') && (direction2 == 'avancer')) {
          msg.buffer = [214, speed1 % 100, 215, Math.floor(speed1/100), 217, speed2 % 100, 218, Math.floor(speed2/100), 220, 0];
@@ -395,7 +395,7 @@
 
   function postAndLogMessage(m) {
     var buf = m.buffer;
-    var logmsg = "D -> " ;
+    var logmsg = "E -> " ;
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -404,7 +404,7 @@
   }
 
   function consoleLog(buf) {
-    var logmsg = "D <- ";
+    var logmsg = "E <- ";
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
