@@ -74,6 +74,7 @@
     var servo_position_smooth;
 
     var lockedByStepper = false;
+    var logActive = false;
 
     var dist_read  = 0;
     var last_reading = 0;
@@ -108,19 +109,19 @@
   }
 
   ext.buzzer = function(stan) {
-
-      var msg = {}
-
-      if (stan == 'marche') {
-
-    msg.buffer = [201,1];
-     postAndLogMessage(msg);
-      }
-      else {
-          msg.buffer = [201,0];
-     postAndLogMessage(msg);
-      }
+    var msg = {}
+    if (stan == 'marche') {
+      msg.buffer = [201,1];
+    } else {
+      msg.buffer = [201,0];
+    }
+    postAndLogMessage(msg);
   }
+
+  ext.logToConsole = function(stan) {
+    if (stan == 'marche') {logActive=true;} else {logActive=false;}
+  }
+
 
   ext.setOUTPUT = function(output, value) {
 
@@ -139,9 +140,8 @@
        if (output == 'OUTPUT 4') {
     msg.buffer = [207,value];
     }
-
+    
     postAndLogMessage(msg);
-
   }
 
   ext.continuousmotor = function(motor,direction,speed) {
@@ -164,8 +164,7 @@
     }
 
      postAndLogMessage(msg);
-
-      }
+  }
 
   ext.pasapas = function(stepper,direction,speed) {
     var msg = {};
@@ -187,8 +186,8 @@
              msg.buffer = [217, speed % 100, 219, Math.floor(speed/100), 220, 0];
         }
     }
-     postAndLogMessage(msg);
- }
+    postAndLogMessage(msg);
+  }
 
   ext.pasapasduo = function(direction1,speed1,direction2,speed2) {
     var msg = {};
@@ -207,7 +206,7 @@
     } else if ((direction1 == 'reculer') && (direction2 == 'reculer')) {
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
     }
-     postAndLogMessage(msg);
+    postAndLogMessage(msg);
   }
 
   ext.stepperMoving = function() {
@@ -351,6 +350,7 @@
             ['b', 'Un moteur pas-à-pas fonctionne', 'stepperMoving'],
             ['-'],
             [' ', 'Tout arrêter', 'allstop']
+            [' ', 'Log %m.stan', 'logToConsole', 'arrêt'],
             ],
         menus: {
 
@@ -401,7 +401,7 @@
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
-    console.log(logmsg);
+    if (logActive==true) {console.log(logmsg);}
     mConnection.postMessage(m);
   }
 
@@ -410,7 +410,7 @@
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
-    console.log(logmsg);
+    if (logActive==true) {console.log(logmsg);}
   }
 
   function onMsgApp(msg) {
