@@ -48,7 +48,7 @@
 
     var pinmode = new Uint8Array(16);
   
-    var countdownLockedBySteppers = 0;
+    var countdownLockedBySteppers = 1;
 
     pinmode[2] = 0;
     pinmode[3] = 1;
@@ -421,12 +421,13 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
-    if (countdownLockedBySteppers>0) {
+    if (countdownLockedBySteppers==1) {lockedByStepper = true;}
+    if (countdownLockedBySteppers<=0) {
+      lockedByStepper = false;
+      if (logActive==true) {console.log("Stepper Lock Released by Timeout");}
+      countdownLockedBySteppers=10000;
+    } else {
       countdownLockedBySteppers = countdownLockedBySteppers -1;
-      if (countdownLockedBySteppers==0) {
-        lockedByStepper = false;
-        console.log("Stepper Lock Released by Timeout");
-      }
     }
     
     if (checkEqualBuffers(buffer,previousBuffer)==false) {
