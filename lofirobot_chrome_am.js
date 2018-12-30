@@ -119,7 +119,11 @@
   }
 
   ext.logToConsole = function(stan) {
-    if (stan == 'marche') {logActive=true;} else {logActive=false;}
+    if (stan == 'marche') {
+      logActive=true;
+    } else {
+      logActive=false;
+    }
   }
 
 
@@ -349,6 +353,7 @@
             ['-'],
             ['b', 'Un moteur pas-à-pas fonctionne', 'stepperMoving'],
             ['-'],
+            [' ', 'Logging Actif %m.stan', 'logToConsole', 'marche'],
             [' ', 'Tout arrêter', 'allstop']
             ],
         menus: {
