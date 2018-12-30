@@ -47,6 +47,8 @@
     var analog3enable = false;
 
     var pinmode = new Uint8Array(16);
+  
+    var countdownLockedBySteppers = 0;
 
     pinmode[2] = 0;
     pinmode[3] = 1;
@@ -395,7 +397,7 @@
 
   function postAndLogMessage(m) {
     var buf = m.buffer;
-    var logmsg = "E -> " ;
+    var logmsg = "F -> " ;
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -404,7 +406,7 @@
   }
 
   function consoleLog(buf) {
-    var logmsg = "E <- ";
+    var logmsg = "F <- ";
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -415,6 +417,14 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
+    if (countdownLockedBySteppers>0) {
+      countdownLockedBySteppers = countdownLockedBySteppers -1;
+      if (countdownLockedBySteppers==0) {
+        lockedByStepper = false;
+        console.log("Stepper Lock Released by Timeout");
+      }
+    }
+    
     if (checkEqualBuffers(buffer,previousBuffer)==false) {
       consoleLog(buffer);
       previousBuffer = buffer;
@@ -426,8 +436,10 @@
       if (buffer[0]==221){    //DD
         if (buffer[1]==0){
           lockedByStepper = false;
+          countdownLockedBySteppers = 0;
         } else {
           lockedByStepper = true;
+          countdownLockedBySteppers = 1000;
         }
       }
         
