@@ -421,11 +421,14 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
-    if (countdownLockedBySteppers==1) {lockedByStepper = true;}
+    if (countdownLockedBySteppers==2) {
+      if (logActive==true) {console.log("Simulated Stepper Lock");}
+      lockedByStepper = true;
+    }
     if (countdownLockedBySteppers<=0) {
       lockedByStepper = false;
-      if (logActive==true) {console.log("Stepper Lock Released by Timeout");}
-      countdownLockedBySteppers=10000;
+      if (logActive==true) {console.log("Simulated Stepper Unlock");}
+      countdownLockedBySteppers=1000;
     } else {
       countdownLockedBySteppers = countdownLockedBySteppers -1;
     }
