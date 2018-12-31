@@ -444,9 +444,11 @@
       if (buffer[0]==221){    //DD
         if (buffer[1]==0){
           lockedByStepper = false;
+          if (logActive==true) {console.log("Stepper Unlock");}
           countdownLockedBySteppers = 0;
         } else {
           lockedByStepper = true;
+          if (logActive==true) {console.log("Stepper Lock");}
           countdownLockedBySteppers = 1000;
         }
       }
