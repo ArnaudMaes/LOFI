@@ -66,8 +66,7 @@
     pinmode[15] = 1;
     pinmode[16] = 1;
 
-    var msg1 = {};
-    var msg2 = {};
+    var msg1 = [];
     var previousBuffer = {};
 
     var servo_smooth = [];
@@ -121,7 +120,9 @@
   ext.logToConsole = function(stan) {
     if (stan == 'marche') {
       logActive=true;
+      if (logActive==true) {console.log("Logging Started");}
     } else {
+      if (logActive==true) {console.log("Logging Stopped");}
       logActive=false;
     }
   }
@@ -255,45 +256,60 @@
 
   function messageParser(buf) {
 
-    var msg = {};
+    var msg = [];
+ 
+    //if (logActive==true) {console.log("(before) msg1.length=" + msg1.length);}
+    //if (logActive==true) {console.log("(before) buf.length =" + buf.length);}
+ 
+    msg.buffer = msg1.concat(buf);
+ 
+    //if (logActive==true) {console.log("(loaded) msg.buffer.length=" + msg.buffer.length);}
 
-    if (buf[0]==224){
-      msg1 = buf;
-      msg2={};
-    }
-    else {
-      msg2 = buf;
-    }
+    while (msg.buffer.length >=2) {
+      //if (logActive==true) {console.log("L(" + msg.buffer.length + ")" +bufferNumbers(msg.buffer));}
 
-    if (msg2.length > 0) {
-      msg.buffer = msg1.concat(msg2);
-    } else {
-      msg.buffer = msg1;
-    }
-
-    if (msg.buffer.length > 10) {
-      msg.buffer = msg.buffer.slice(0,10);
-    }
-
-    if (msg.buffer.length == 10){
-
-      if (msg.buffer[0] == 224) {
-        analogRead0 = Math.round(msg.buffer[1] );
+      if (msg.buffer[0] <= 199) { 
+        if (msg.buffer[0] != 105) {
+          if (logActive==true) {console.log("Unexpected character msg.buffer[0]==" + Number(msg.buffer[0]));}
+        }
+        msg.buffer = msg.buffer.slice(1);
+      } else if (msg.buffer[0] > 199) {
+      {
+        if (msg.buffer[1] <= 100) {
+          if (msg.buffer[0] == 224) {
+            analogRead0 = Math.round(msg.buffer[1] );
+          } else if (msg.buffer[0] == 225) {
+            analogRead1 = Math.round(msg.buffer[1] );
+          } else if (msg.buffer[0] == 226) {
+            analogRead2 = Math.round(msg.buffer[1] );
+          } else if (msg.buffer[0] == 227) {
+            analogRead3 = Math.round(msg.buffer[1] );
+          } else if (msg.buffer[0] == 240) {
+            dist_read = Math.round(msg.buffer[1] );
+          } else if (msg.buffer[0] == 221) {
+            if (msg.buffer[0]==0){
+              lockedByStepper = false;
+              if (logActive==true) {console.log("Stepper Unlock");}
+              countdownLockedBySteppers = 0;
+            } else {
+              lockedByStepper = true;
+              if (logActive==true) {console.log("Stepper Lock");}
+             countdownLockedBySteppers = 1000;
+            }
+          } else {
+            if (logActive==true) {console.log("Unexpected character msg.buffer[0]+msg.buffer[1] ==" + Number(msg.buffer[0]) + " " + Number(msg.buffer[1]));}
+          }
+        } else {
+            if (logActive==true) {console.log("Unexpected character msg.buffer[0]+msg.buffer[1] ==" + Number(msg.buffer[0]) + " " + Number(msg.buffer[1]));}
+        }
+        msg.buffer = msg.buffer.slice(2);
       }
-      if (msg.buffer[2] == 225) {
-        analogRead1 = Math.round(msg.buffer[3] );
-      }
-      if (msg.buffer[4] == 226) {
-        analogRead2 = Math.round(msg.buffer[5] );
-      }
-      if (msg.buffer[6] == 227) {
-        analogRead3 = Math.round(msg.buffer[7] );
-      }
-      if (msg.buffer[8] == 240) {
-        dist_read = Math.round(msg.buffer[9] );
-      }
+    }     
+    if (msg.buffer[0] == 105) {msg.buffer = msg.buffer.slice(1);}   //ignore
+    //if (logActive==true) {console.log("(after) msg.buffer.length=" + msg.buffer.length);}
     //lockedByStepper = false;
     }
+    if (msg.buffer.length==1) {msg1=[msg.buffer[0]];} else {msg1=[];}
   }
 
   ext.readINPUTanalog = function(input) {
@@ -410,11 +426,15 @@
   }
 
   function consoleLog(buf) {
-    var logmsg = "F <- ";
+    if (logActive==true) {console.log(bufferNumbers(buf));}
+  }
+
+  function bufferNumbers(buf) {
+    var st = "";
     for (var i=0; i<buf.length; i++) {
-      logmsg = logmsg + Number(buf[i]) + " ";
+      st = st + Number(buf[i]) + " ";
     }
-    if (logActive==true) {console.log(logmsg);}
+    return st;
   }
 
   function onMsgApp(msg) {
@@ -432,34 +452,13 @@
     } else {
       countdownLockedBySteppers = countdownLockedBySteppers -1;
     }
-    
-    consoleLog(buffer);
-    if (checkEqualBuffers(buffer,previousBuffer)==false) {
-      previousBuffer = buffer;
-      if (buffer[0]==224){  //E0
-        messageParser(buffer);
-        last_reading = 0;
-      } 
 
-      if (buffer[0]==221){    //DD
-        if (buffer[1]==0){
-          lockedByStepper = false;
-          if (logActive==true) {console.log("Stepper Unlock");}
-          countdownLockedBySteppers = 0;
-        } else {
-          lockedByStepper = true;
-          if (logActive==true) {console.log("Stepper Lock");}
-          countdownLockedBySteppers = 1000;
-        }
-      }
-        
-      if (buffer[0] != 224 && last_reading == 0){
-        messageParser(buffer);
-        last_reading = 1;
-      }
-    } else {
-    }
-  };
+    if (checkEqualBuffers(buffer,previousBuffer)==false) {
+      if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
+      previousBuffer = buffer;
+      messageParser(buffer);
+    } 
+  }
 
   function checkEqualBuffers(buf1, buf2) {
     if (buf1.length != buf2.length) return false;
