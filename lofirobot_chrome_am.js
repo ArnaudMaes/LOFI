@@ -1,6 +1,6 @@
 (function(ext) {
 
-  var versionAM = "2.2";
+  var versionAM = "2.3";
   
   var INPUT = 0x00,
     OUTPUT = 0x01,
@@ -199,6 +199,8 @@
   ext.pasapasduo = function(direction1,speed1,direction2,speed2) {
     var msg = {};
 
+    if (logActive==true) {console.log("Start Stepper Duo: " + direction1 + " " + speed1 + " " + direction2 + " " + speed2);}
+    
     speed1 = valBetween(speed1,0,10000);
     speed2 = valBetween(speed2,0,10000);
 
@@ -213,6 +215,7 @@
     } else if ((direction1 == 'reculer') && (direction2 == 'reculer')) {
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
     }
+    if (logActive==true) {console.log("Posting Message " + bufferNumbers(msg));}
     postAndLogMessage(msg);
   }
 
@@ -418,12 +421,12 @@
   };
 
   function postAndLogMessage(m) {
-    var buf = m.buffer;
-    var logmsg = "S:" ;
-    for (var i=0; i<buf.length; i++) {
-      logmsg = logmsg + Number(buf[i]) + " ";
-    }
-    if (logActive==true) {console.log(logmsg);}
+//    var buf = m.buffer;
+//    var logmsg = "S:" ;
+//    for (var i=0; i<buf.length; i++) {
+//      logmsg = logmsg + Number(buf[i]) + " ";
+//    }
+    if (logActive==true) {console.log("S: " + bufferNumbers(m));}
     mConnection.postMessage(m);
   }
 
