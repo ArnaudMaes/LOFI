@@ -441,6 +441,7 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
+    /*
     if (countdownLockedBySteppers==2) {
       if (logActive==true) {console.log("Simulated Stepper Lock");}
       lockedByStepper = true;
@@ -452,6 +453,7 @@
     } else {
       countdownLockedBySteppers = countdownLockedBySteppers -1;
     }
+    */
 
     if (checkEqualBuffers(buffer,previousBuffer)==false) {
       if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
