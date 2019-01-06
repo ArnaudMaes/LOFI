@@ -426,7 +426,7 @@
 //    for (var i=0; i<buf.length; i++) {
 //      logmsg = logmsg + Number(buf[i]) + " ";
 //    }
-    if (logActive==true) {console.log("S: " + bufferNumbers(m));}
+    if (logActive==true) {console.log("S: " + bufferNumbers(m.buffer));}
     mConnection.postMessage(m);
   }
 
