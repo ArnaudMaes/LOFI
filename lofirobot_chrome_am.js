@@ -1,5 +1,7 @@
 (function(ext) {
 
+  var versionAM = "2.1";
+  
   var INPUT = 0x00,
     OUTPUT = 0x01,
     ANALOG = 0x02,
@@ -120,9 +122,9 @@
   ext.logToConsole = function(stan) {
     if (stan == 'marche') {
       logActive=true;
-      if (logActive==true) {console.log("Logging Started");}
+      if (logActive==true) {console.log("Logging Started " + versionAM);}
     } else {
-      if (logActive==true) {console.log("Logging Stopped");}
+      if (logActive==true) {console.log("Logging Stopped " + versionAM);}
       logActive=false;
     }
   }
