@@ -1,6 +1,6 @@
 (function(ext) {
 
-  var versionAM = "2.1";
+  var versionAM = "2.2";
   
   var INPUT = 0x00,
     OUTPUT = 0x01,
@@ -419,7 +419,7 @@
 
   function postAndLogMessage(m) {
     var buf = m.buffer;
-    var logmsg = "F -> " ;
+    var logmsg = "S:" ;
     for (var i=0; i<buf.length; i++) {
       logmsg = logmsg + Number(buf[i]) + " ";
     }
@@ -458,7 +458,7 @@
     */
 
     if (checkEqualBuffers(buffer,previousBuffer)==false) {
-      if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
+//      if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
       previousBuffer = buffer;
       messageParser(buffer);
     } 
