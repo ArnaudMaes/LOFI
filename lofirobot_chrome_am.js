@@ -1,6 +1,6 @@
 (function(ext) {
 
-  var versionAM = "2.3";
+  var versionAM = "2.4";
   
   var INPUT = 0x00,
     OUTPUT = 0x01,
