@@ -287,7 +287,7 @@
           } else if (msg.buffer[0] == 240) {
             dist_read = Math.round(msg.buffer[1] );
           } else if (msg.buffer[0] == 221) {
-            if (msg.buffer[0]==0){
+            if (msg.buffer[1]==0){
               lockedByStepper = false;
               if (logActive==true) {console.log("Stepper Unlock");}
               countdownLockedBySteppers = 0;
