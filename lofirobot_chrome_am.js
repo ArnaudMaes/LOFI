@@ -1,6 +1,6 @@
 (function(ext) {
 
-  var versionAM = "2.5";
+  var versionAM = "2.8";
   
   var INPUT = 0x00,
     OUTPUT = 0x01,
@@ -50,7 +50,7 @@
 
     var pinmode = new Uint8Array(16);
   
-    var countdownLockedBySteppers = 1;
+    var countdownLockedBySteppers = 50;
 
     pinmode[2] = 0;
     pinmode[3] = 1;
@@ -76,6 +76,9 @@
 
     var lockedByStepper = false;
     var logActive = false;
+
+    var totS1 = 0, 
+        totS2 = 0;
 
     var dist_read  = 0;
     var last_reading = 0;
@@ -182,15 +185,19 @@
     if (stepper == 'S1') {
         if (direction == 'avancer') {
              msg.buffer = [214, speed % 100, 215, Math.floor(speed/100), 220, 0];
+             totS1 = totS1 + speed;
         } else {
              msg.buffer = [214, speed % 100, 216, Math.floor(speed/100), 220, 0];
+             totS1 = totS1 - speed;
         }
     }
     if (stepper == 'S2') {
         if (direction == 'avancer') {
              msg.buffer = [217, speed % 100, 218, Math.floor(speed/100), 220, 0];
+             totS2 = totS2 + speed;
         } else {
              msg.buffer = [217, speed % 100, 219, Math.floor(speed/100), 220, 0];
+             totS2 = totS2 - speed;
         }
     }
     postAndLogMessage(msg);
@@ -208,12 +215,16 @@
 
     if ((direction1 == 'avancer') && (direction2 == 'avancer')) {
          msg.buffer = [214, speed1 % 100, 215, Math.floor(speed1/100), 217, speed2 % 100, 218, Math.floor(speed2/100), 220, 0];
-    } else if ((direction1 == 'reculer') && (direction2 == 'avancer')) {
+         totS1 = totS1 + speed1; totS2 = totS2 + speed2;
+   } else if ((direction1 == 'reculer') && (direction2 == 'avancer')) {
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 218, Math.floor(speed2/100), 220, 0];
+         totS1 = totS1 - speed1; totS2 = totS2 + speed2;
     } if ((direction1 == 'avancer') && (direction2 == 'reculer')) {
          msg.buffer = [214, speed1 % 100, 215, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
+         totS1 = totS1 + speed1; totS2 = totS2 - speed2;
     } else if ((direction1 == 'reculer') && (direction2 == 'reculer')) {
          msg.buffer = [214, speed1 % 100, 216, Math.floor(speed1/100), 217, speed2 % 100, 219, Math.floor(speed2/100), 220, 0];
+         totS1 = totS1 - speed1; totS2 = totS2 - speed2;
     }
     if (logActive==true) {console.log("Posting Message " + bufferNumbers(msg));}
     postAndLogMessage(msg);
@@ -294,12 +305,12 @@
           } else if (msg.buffer[0] == 221) {
             if (msg.buffer[1]==0){
               lockedByStepper = false;
-              if (logActive==true) {console.log("Stepper Unlock");}
-              countdownLockedBySteppers = 0;
+//              if (logActive==true) {console.log("Stepper Unlock");}
+//              countdownLockedBySteppers = 0;
             } else {
               lockedByStepper = true;
               if (logActive==true) {console.log("Stepper Lock");}
-             countdownLockedBySteppers = 1000;
+             countdownLockedBySteppers = 50;
             }
           } else {
             if (logActive==true) {console.log("Unexpected character msg.buffer[0]+msg.buffer[1] ==" + Number(msg.buffer[0]) + " " + Number(msg.buffer[1]));}
@@ -338,6 +349,19 @@
     return reading;
   }
 
+  ext.setStepperToZero = function() {
+    totS1 = 0;
+    totS2 = 0;
+  }
+
+  ext.readStepper = function(input) {
+    if (input == 'S1'){
+      return totS1;
+    } else if (input == 'S2'){
+      return  totS2;
+    }
+  }
+
   ext.readUltrasound = function(input) {
 
     //var msg = new Uint8Array([0xF0,0x08,14,0xF7]);
@@ -359,7 +383,7 @@
 
   var descriptor = {
 
-    url: 'http://www.lofirobot.com',
+    
 
         blocks: [
             [' ', 'Activer le moteur continu %m.motor en mode %m.direction à la puissance %n', 'continuousmotor', 'M1','avancer', 100],
@@ -375,7 +399,11 @@
             ['b', 'Un moteur pas-à-pas fonctionne', 'stepperMoving'],
             ['-'],
             [' ', 'Logging Actif %m.stan', 'logToConsole', 'marche'],
-            [' ', 'Tout arrêter', 'allstop']
+            [' ', 'Tout arrêter', 'allstop'],
+            ['-'],
+            [' ', 'Mettre les positions des Steppers à zéro', 'setStepperToZero'],
+            ['r', 'Lire position Stepper %m.stepper', 'readStepper', 'S1'],
+            ['-']
             ],
         menus: {
 
@@ -406,12 +434,13 @@
       } else if (response.status === false) { //Chrome app says not connected
         mStatus = 1;
         setTimeout(getAppStatus, 1000);
+        //console.log("Not Connected");
       } else {// successfully connected
         if (mStatus !==2) {
           mConnection = chrome.runtime.connect(LOFI_ID);
           mConnection.onMessage.addListener(onMsgApp);
           connected = true;
-          // console.log("Connected");
+          //console.log("Connected");
           //pinMode_init();
         }
         //                mStatus = 1; 
@@ -446,25 +475,27 @@
     mStatus = 2;
     var buffer = msg.buffer;
 
-    /*
+//    if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
+    if (checkEqualBuffers(buffer,previousBuffer)==false) {
+      previousBuffer = buffer;
+      messageParser(buffer);
+    } 
+
     if (countdownLockedBySteppers==2) {
       if (logActive==true) {console.log("Simulated Stepper Lock");}
       lockedByStepper = true;
+      countdownLockedBySteppers=50;
+    } else {
+      countdownLockedBySteppers = countdownLockedBySteppers -1;
     }
+    /*
     if (countdownLockedBySteppers<=0) {
       lockedByStepper = false;
       if (logActive==true) {console.log("Simulated Stepper Unlock");}
       countdownLockedBySteppers=1000;
-    } else {
-      countdownLockedBySteppers = countdownLockedBySteppers -1;
-    }
+    } 
     */
 
-    if (checkEqualBuffers(buffer,previousBuffer)==false) {
-//      if (logActive==true) {console.log("R:"+bufferNumbers(buffer));}
-      previousBuffer = buffer;
-      messageParser(buffer);
-    } 
   }
 
   function checkEqualBuffers(buf1, buf2) {
