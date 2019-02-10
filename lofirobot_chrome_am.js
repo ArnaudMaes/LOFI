@@ -400,9 +400,9 @@
             ['-'],
             [' ', 'Logging Actif %m.stan', 'logToConsole', 'marche'],
             [' ', 'Tout arrêter', 'allstop'],
-            ['-'],
-            [' ', 'Mettre les positions des Steppers à zéro', 'setStepperToZero'],
-            ['r', 'Lire position Stepper %m.stepper', 'readStepper', 'S1'],
+//            ['-'],
+//            [' ', 'Mettre les positions des Steppers à zéro', 'setStepperToZero'],
+//            ['r', 'Lire position Stepper %m.stepper', 'readStepper', 'S1'],
             ['-']
             ],
         menus: {
